@@ -4,40 +4,58 @@ using UnityEngine;
 
 public class LimbManager : MonoBehaviour
 {
-    private Transform rightShoulder;
-    private Transform rightArm;
-    private Transform rightForeArm;
-    private Transform rightHand;
-    private float a;
-    private float b;
-    private float c;
-    private float d;
-    private float e;
-    private float f;
+    // Array of all the joints we'll be using
+    // Make this public so that we can decide which joints we want to include in the inspector
+    public Rigidbody[] joints;
+    public GameObject throwingHand;
+    private Rigidbody[] fingers; // The transforms of the throwing hand's fingers
+    private GameObject ball; // Reference for the ball we're throwing
 
     // Start is called before the first frame update
     void Start()
     {
-        rightShoulder = transform.Find("mixamorig:Hips/mixamorig:Spine/mixamorig:Spine1/mixamorig:Spine2/mixamorig:RightShoulder");
-        rightArm = rightShoulder.Find("mixamorig:RightArm");
-        rightForeArm = rightArm.Find("mixamorig:RightForeArm");
-        rightHand = rightForeArm.Find("mixamorig:RightHand");
+        // Get the ball's transform
+        ball = GameObject.FindWithTag("Ball");
+        ball.transform.SetParent(null);
 
-        a = Random.Range(-5, 5);
-        b = Random.Range(-5, 5);
-        c = Random.Range(-5, 5);
-        d = Random.Range(-5, 5);
-        e = Random.Range(-5, 5);
-        f = Random.Range(-5, 5);
+        // Get the fingers
+        fingers = throwingHand.GetComponentsInChildren<Rigidbody>();
+
+    }
+
+
+    // This opens the hand to release the ball
+    private void Release()
+    {
+        foreach (Rigidbody finger in fingers)
+        {
+            if (finger != throwingHand.GetComponent<Rigidbody>())
+            {
+                //finger.rotation = Quaternion.Euler(0, 0, 0);
+                //finger.MoveRotation(Quaternion.Euler(0, 0, 0));
+                finger.gameObject.transform.localEulerAngles = new Vector3(0,0,0);
+            }
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        //rightShoulder.Rotate(new Vector3(0,1,0));
-        rightArm.Rotate(new Vector3(a, b, c));
-        rightForeArm.Rotate(new Vector3(d, e, f));
-        //rightHand.Rotate(new Vector3(0,1,0));
+        // Press space to drop the ball (for now)
+        if (Input.GetKey(KeyCode.Space))
+        {
+            Release();
+        }
 
     }
+
+    void FixedUpdate()
+    {
+        foreach (Rigidbody joint in joints)
+        {
+            joint.MoveRotation(Quaternion.Euler(joint.rotation.eulerAngles + new Vector3(0, 1, 0)));
+        }
+
+    }
+
 }
