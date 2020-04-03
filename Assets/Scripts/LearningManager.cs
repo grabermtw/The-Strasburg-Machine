@@ -6,6 +6,7 @@ public class LearningManager : MonoBehaviour
 {
     public GameObject pitcher;
     private GameObject currentPitcher;
+    int count =0;
 
     // Start is called before the first frame update
     void Start()
@@ -18,6 +19,8 @@ public class LearningManager : MonoBehaviour
     public void BallHitGround(float distance)
     {
         Debug.Log("AJ threw the ball " + distance + " meters. Good for him!");
+        Debug.Log(count);
+        count++;
         // Replace the current pitcher with a newly refreshed pitcher
         Destroy(currentPitcher);
         currentPitcher = Instantiate(pitcher);

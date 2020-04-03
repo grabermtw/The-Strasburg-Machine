@@ -188,8 +188,24 @@ PrefabInstance:
       propertyPath: m_Name
       value: AJ
       objectReference: {fileID: 0}
+    - target: {fileID: 4510486828007036383, guid: 146d3b319007d4b48ba2286590aac97a,
+        type: 3}
+      propertyPath: joints.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4510486828007036383, guid: 146d3b319007d4b48ba2286590aac97a,
+        type: 3}
+      propertyPath: joints.Array.data[4]
+      value: 
+      objectReference: {fileID: 397007610}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 146d3b319007d4b48ba2286590aac97a, type: 3}
+--- !u!54 &397007610 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 1126382803070172352, guid: 146d3b319007d4b48ba2286590aac97a,
+    type: 3}
+  m_PrefabInstance: {fileID: 397007609}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &698554439
 GameObject:
   m_ObjectHideFlags: 0
