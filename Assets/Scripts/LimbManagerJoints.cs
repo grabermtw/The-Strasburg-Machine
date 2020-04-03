@@ -10,29 +10,33 @@ public class LimbManagerJoints : MonoBehaviour
     public GameObject throwingHand;
     private Transform[] fingers; // The transforms of the throwing hand's fingers
     private GameObject ball; // Reference for the ball we're throwing
+    private Vector3[] torqueInputs; // Array of inputs for the torque
+    private int releaseFrameInput; // The frame at which the ball should be released
+    private int currentFrame; // Counted up until we reach releaseFrameInput
 
     // Start is called before the first frame update
     void Start()
     {
-
         // Get the ball's transform
         ball = transform.Find("Ball").gameObject;
         ball.transform.SetParent(null);
 
         // Get the fingers
         fingers = throwingHand.GetComponentsInChildren<Transform>();
+
+        currentFrame = 0;
     }
 
 
     // This opens the hand to release the ball
     private void Release()
     {
-        // Open hand
+        // Open the hand
         foreach (Transform finger in fingers)
         {
             if (finger != throwingHand.transform)
             {
-                finger.gameObject.transform.localEulerAngles = new Vector3(0,0,0);
+                finger.gameObject.transform.localEulerAngles = new Vector3(0, 0, 0);
             }
         }
 
@@ -43,21 +47,44 @@ public class LimbManagerJoints : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         // Press space to drop the ball (for now)
         if (Input.GetKey(KeyCode.Space))
         {
             Release();
         }
-
     }
 
     void FixedUpdate()
     {
-        foreach (Rigidbody joint in joints)
+        // Is it time to throw the ball?
+        if (currentFrame < releaseFrameInput)
         {
-            joint.AddRelativeTorque(new Vector3(Random.Range(-50,50), Random.Range(-50,50), Random.Range(-50,50)));
+            // It is not time to throw the ball.
+            // We'll add more torque to our limbs instead.
+            for (int i = 0; i < joints.Length; i++)
+            {
+                joints[i].AddRelativeTorque(torqueInputs[i]);
+            }
+            currentFrame++;
         }
+        else
+        {
+            // It is time to throw the ball!
+            Release();
+        }
+    }
 
+    // Returns the number of joints in use
+    public int GetNumberOfJoints()
+    {
+        return joints.Length;
+    }
+
+    public void SetInputs(int releaseFrame, Vector3[] torques)
+    {
+        releaseFrameInput = releaseFrame;
+        torqueInputs = torques;
     }
 
 }
