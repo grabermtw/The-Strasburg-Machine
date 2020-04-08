@@ -14,6 +14,8 @@ public class LimbManagerJoints : MonoBehaviour
     private int releaseFrameInput; // The frame at which the ball should be released
     private int currentFrame; // Counted up until we reach releaseFrameInput
 
+    private bool released = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -68,10 +70,11 @@ public class LimbManagerJoints : MonoBehaviour
             }
             currentFrame++;
         }
-        else
+        else if (!released)
         {
             // It is time to throw the ball!
             Release();
+            released = true;
         }
     }
 

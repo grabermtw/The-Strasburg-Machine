@@ -800,6 +800,7 @@ GameObject:
   - component: {fileID: 2739610657259691123}
   - component: {fileID: 2739610657259691120}
   - component: {fileID: 2739610657259691127}
+  - component: {fileID: 7682843559160468546}
   m_Layer: 9
   m_Name: Ball
   m_TagString: Ball
@@ -911,6 +912,19 @@ FixedJoint:
   m_EnablePreprocessing: 1
   m_MassScale: 1
   m_ConnectedMassScale: 1
+--- !u!114 &7682843559160468546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2739610657259691121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3b4f7418b25a66438ee0959ac8ce7a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ballID: 0
 --- !u!1 &2756400762744301029
 GameObject:
   m_ObjectHideFlags: 0
@@ -1544,7 +1558,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4510486828007036380}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:

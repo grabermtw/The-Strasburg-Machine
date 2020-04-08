@@ -5,6 +5,8 @@ using UnityEngine;
 public class Floor : MonoBehaviour
 {
     private LearningManager manager;
+
+    private int count;
     // Start is called before the first frame update
     void Start()
     {
@@ -22,12 +24,14 @@ public class Floor : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Ball"))
         {
-            float distance = other.gameObject.transform.position.z;
+            // float distance = other.gameObject.transform.position.z;
+            Vector3 ballPosition = other.gameObject.transform.position;
+            int ballID = other.gameObject.GetComponent<Ball>().ballID;
             // Get rid of this ball
             Destroy(other.gameObject);
-            // Inform the manager of the distance that the ball traveled in the z direction
-            manager.BallHitGround(distance);
-            
+
+            // Inform the manager of the distance that the ball traveled in the z direction            
+            manager.BallHitGround(ballID, ballPosition);
         }
     }
 }
