@@ -7,6 +7,7 @@ public class LearningManager : MonoBehaviour
 {
     const int NUM_AJS = 10;
     const int NUM_JOINTS = 4;
+    const int NUM_THROWS = 3;
     const int PARENTS_TO_KEEP = (int)(NUM_AJS * .2);
     const float CROSSOVER_PROBABILITY = 0.95f;
     const float MUTATION_PROBABILITY = 0.05f;
@@ -15,45 +16,97 @@ public class LearningManager : MonoBehaviour
     int generation = 0;
     int generationProgress = 0;
     float avgFitness = 0;
+    float maxFitness = 0;
 
     private GameObject[] AJs = new GameObject[NUM_AJS];
     private AJData[] AJDatas = new AJData[NUM_AJS];
+    private int throwNum = 0;
+    private float[][] scores = new float[NUM_AJS][];
 
     // Start is called before the first frame update
     void Start()
     {
         InitializePopulation();
+        // initialize jagged scores array
+        for (int i=0; i<NUM_AJS; i++)
+        {
+            scores[i] = new float[NUM_THROWS];
+        }
     }
 
     // This is called by the Floor script on the Floor GameObject whenever the ball hits the floor
     public void BallHitGround(int ballID, Vector3 ballPosition)
     {
         GameObject AJ = AJs[ballID];
-        float distance = Vector3.Distance(AJ.transform.position, ballPosition);
+        //euclidean distance
+        //float distance = Vector3.Distance(AJ.transform.position, ballPosition);
 
+        //z-coordinate distance, this is the distance in only the direction we want him to throw
+        float distance = Math.Max(0, ballPosition.z - AJ.transform.position.z);
         // Debug.Log("AJ " + ballID + " threw the ball " + distance + " meters. Good for him!");
         
-        AJDatas[ballID].fitness = distance;
+        //AJDatas[ballID].fitness = Math.Max(AJDatas[ballID].fitness, distance);
+        scores[ballID][throwNum] = distance;
         generationProgress++;
-        avgFitness += distance / NUM_AJS;
+        avgFitness += distance;
+        maxFitness = Math.Max(distance, maxFitness);
         
-        // Generation is done running
+        // Set is done running
         if (generationProgress >= NUM_AJS) {
-            generation++;
-            Debug.Log("Generation " + generation + " concluded with an average fitness of " + avgFitness + ".");
-            generationProgress = 0;
-            avgFitness = 0;
-
-            CreateNewGeneration();
-
-            for (int i = 0; i < NUM_AJS; i++) {
-                Destroy(AJs[i]);
-
-                AJs[i] = Instantiate(pitcher, new Vector3(i * 2, 0, 0), Quaternion.identity);
+            // Generation is done running
+            //FitnessPrintStatement();
+            if (throwNum >= NUM_THROWS - 1)
+            {
+                // Evaluate fitness
+                // currently using median value as fitness
+                for (int i=0; i<NUM_AJS; i++)
+                {
+                    Array.Sort(scores[i]);
+                    // different case for odd and even number of throws
+                    AJDatas[i].fitness = NUM_THROWS % 2 == 1 ? scores[i][NUM_THROWS/2] : (scores[i][NUM_THROWS/2 - 1] + scores[i][NUM_THROWS/2]) / 2;
+                    // might as well clean scores while we're here
+                    for (int j=0; j<NUM_THROWS; j++)
+                    {
+                        scores[i][j] = 0;
+                    }
+                }
+                Debug.Log("Generation " + generation + ": max fitness was "+maxFitness+", average fitness was "+(avgFitness/(NUM_AJS*NUM_THROWS)));
+                generationProgress = 0;
+                avgFitness = 0;
+                maxFitness = 0;
+                generation++;
+                throwNum = 0;
                 
-                LimbManagerJoints pitcherLimbs = AJs[i].GetComponent<LimbManagerJoints>();
-                pitcherLimbs.SetInputs(AJDatas[i].releaseFrame, AJDatas[i].torques);
-                AJs[i].transform.Find("Ball").GetComponent<Ball>().ballID = i;
+                CreateNewGeneration();
+
+                for (int i = 0; i < NUM_AJS; i++) {
+                    Destroy(AJs[i]);
+
+                    AJs[i] = Instantiate(pitcher, new Vector3(i * 2, 0, 0), Quaternion.identity);
+                    
+                    LimbManagerJoints pitcherLimbs = AJs[i].GetComponent<LimbManagerJoints>();
+                    pitcherLimbs.SetInputs(AJDatas[i].releaseFrame, AJDatas[i].torques);
+                    AJs[i].transform.Find("Ball").GetComponent<Ball>().ballID = i;
+                }
+                //update display
+                Display.UpdateText(generation, throwNum);
+            }
+            // else move onto next set of throws
+            else
+            {
+                generationProgress = 0;
+                throwNum++;
+                for (int i = 0; i < NUM_AJS; i++) {
+                    Destroy(AJs[i]);
+
+                    AJs[i] = Instantiate(pitcher, new Vector3(i * 2, 0, 0), Quaternion.identity);
+                    
+                    LimbManagerJoints pitcherLimbs = AJs[i].GetComponent<LimbManagerJoints>();
+                    pitcherLimbs.SetInputs(AJDatas[i].releaseFrame, AJDatas[i].torques);
+                    AJs[i].transform.Find("Ball").GetComponent<Ball>().ballID = i;
+                }
+                //update display
+                Display.UpdateText(generation, throwNum);
             }
         }
     }
@@ -107,7 +160,7 @@ public class LearningManager : MonoBehaviour
                 child = p1;
             }
             
-            // determine if we will crossover
+            // determine if we will mutate
             r = UnityEngine.Random.Range(0, 1);
             if (r <= MUTATION_PROBABILITY) {
                 // mutate the child
@@ -119,6 +172,7 @@ public class LearningManager : MonoBehaviour
         }
 
         Array.Sort(AJDatas);
+        //FitnessPrintStatement()
         for (int i = 0; i < NUM_AJS - PARENTS_TO_KEEP; i++) {
             AJDatas[i] = ret[i];
         }
@@ -131,9 +185,8 @@ public class LearningManager : MonoBehaviour
         for (int i = 0; i < NUM_AJS; i++) {
             sumFitness += AJDatas[i].fitness;
         }
-
+        //Debug.Log("sumfitness: "+sumFitness);
         float r = UnityEngine.Random.Range(0, sumFitness);
-        
         // Roulette-style choosing
         float partialSum = 0;
         int j = 0;
@@ -187,14 +240,28 @@ public class LearningManager : MonoBehaviour
         // TODO VORSTEG / BEN
     }
 
+    private void FitnessPrintStatement()
+    {
+        string str = "";
+        for (int i = 0; i < AJDatas.Length; i++)
+        {
+            str += scores[i][throwNum].ToString("F3") + " ";
+        }
+        Debug.Log(str);
+    }
+
     public class AJData : IComparable {
         public Vector3[] torques;
         public int releaseFrame;
         public float fitness;
+        public int id;
+        public static int nextId = 0;
 
         public AJData(Vector3[] torques, int releaseFrame) {
             this.releaseFrame = releaseFrame;
             this.torques = torques;
+            this.id = nextId;
+            nextId++;
         }
 
         public int CompareTo(object obj) {
