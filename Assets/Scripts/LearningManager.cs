@@ -5,8 +5,11 @@ using UnityEngine;
 
 public class LearningManager : MonoBehaviour
 {
-    const int NUM_AJS = 10;
-    const int NUM_JOINTS = 4;
+    const int NUM_AJS = 50;
+    // const int NUM_JOINTS = 10;
+    /* We'll get the number of joints from the AJ prefab
+    rather than define it here so that we can easily change the number of joints
+    */
     const int NUM_THROWS = 3;
     const int PARENTS_TO_KEEP = (int)(NUM_AJS * .2);
     const float CROSSOVER_PROBABILITY = 0.95f;
@@ -22,10 +25,14 @@ public class LearningManager : MonoBehaviour
     private AJData[] AJDatas = new AJData[NUM_AJS];
     private int throwNum = 0;
     private float[][] scores = new float[NUM_AJS][];
+    private int num_joints;
 
     // Start is called before the first frame update
     void Start()
     {
+        // Get the number of joints this pitcher has
+        num_joints = pitcher.GetComponent<LimbManagerJoints>().GetNumberOfJoints();
+
         InitializePopulation();
         // initialize jagged scores array
         for (int i=0; i<NUM_AJS; i++)
@@ -42,7 +49,7 @@ public class LearningManager : MonoBehaviour
         //float distance = Vector3.Distance(AJ.transform.position, ballPosition);
 
         //z-coordinate distance, this is the distance in only the direction we want him to throw
-        float distance = Math.Max(0, ballPosition.z - AJ.transform.position.z);
+        float distance = Math.Max(0, ballPosition.z); //- AJ.transform.position.z);
         // Debug.Log("AJ " + ballID + " threw the ball " + distance + " meters. Good for him!");
         
         //AJDatas[ballID].fitness = Math.Max(AJDatas[ballID].fitness, distance);
@@ -112,7 +119,7 @@ public class LearningManager : MonoBehaviour
     }
 
     private AJData CreateRandomAJ(int id) {
-        Vector3[] torques = new Vector3[NUM_JOINTS];
+        Vector3[] torques = new Vector3[num_joints];
 
         // Fill our array with random values for each torque to be applied
         for(int i = 0; i < torques.Length; i++)
@@ -209,9 +216,9 @@ public class LearningManager : MonoBehaviour
         // uniform crossover
         // -----------------------------------
         // each parameter from the child is chosen by randomly choosing p1 or p2
-        Vector3[] torques = new Vector3[NUM_JOINTS];
+        Vector3[] torques = new Vector3[num_joints];
 
-        for (int i = 0; i < NUM_JOINTS; i++) {            
+        for (int i = 0; i < num_joints; i++) {            
             torques[i] = (UnityEngine.Random.Range(0, 1) > 0.5) ? p1.torques[i] : p2.torques[i];
         }
 
@@ -225,9 +232,9 @@ public class LearningManager : MonoBehaviour
 
     private AJData Mutate(AJData c) {
         // 1) Randomize one of the parameters or
-        int random = (int)(UnityEngine.Random.Range(0, NUM_JOINTS + 1));
+        int random = (int)(UnityEngine.Random.Range(0, num_joints + 1));
 
-        if (random == 4) {
+        if (random == num_joints) {
             return new AJData(c.torques, (int) UnityEngine.Random.Range(0,100));
         }
         else {

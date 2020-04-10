@@ -8,6 +8,7 @@ public class LimbManagerJoints : MonoBehaviour
     // Make this public so that we can decide which joints we want to include in the inspector
     public Rigidbody[] joints;
     public GameObject throwingHand;
+    public bool useGravity; // Should the limbs be using gravity in their rigidbodies?
     private Transform[] fingers; // The transforms of the throwing hand's fingers
     private GameObject ball; // Reference for the ball we're throwing
     private Vector3[] torqueInputs; // Array of inputs for the torque
@@ -15,6 +16,7 @@ public class LimbManagerJoints : MonoBehaviour
     private int currentFrame; // Counted up until we reach releaseFrameInput
 
     private bool released = false;
+
 
     // Start is called before the first frame update
     void Start()
@@ -27,6 +29,16 @@ public class LimbManagerJoints : MonoBehaviour
         fingers = throwingHand.GetComponentsInChildren<Transform>();
 
         currentFrame = 0;
+
+        // Immediately prepare each joint to be manipulated
+        foreach(Rigidbody joint in joints)
+        {
+            joint.isKinematic = false;
+            if(!useGravity)
+            {
+                joint.useGravity = false;
+            }
+        }
     }
 
 
@@ -46,17 +58,6 @@ public class LimbManagerJoints : MonoBehaviour
         Destroy(ball.GetComponent<FixedJoint>());
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-        // Press space to drop the ball (for now)
-        if (Input.GetKey(KeyCode.Space))
-        {
-            Release();
-        }
-    }
-
     void FixedUpdate()
     {
         // Is it time to throw the ball?
@@ -73,8 +74,8 @@ public class LimbManagerJoints : MonoBehaviour
         else if (!released)
         {
             // It is time to throw the ball!
-            Release();
             released = true;
+            Release();
         }
     }
 
