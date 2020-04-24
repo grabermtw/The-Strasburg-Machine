@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class LearningManager : MonoBehaviour
 {
-    const int NUM_AJS = 50;
+    const int NUM_AJS = 10;
     // const int NUM_JOINTS = 10;
     /* We'll get the number of joints from the AJ prefab
     rather than define it here so that we can easily change the number of joints
@@ -16,6 +16,7 @@ public class LearningManager : MonoBehaviour
     const float MUTATION_PROBABILITY = 0.05f;
 
     public GameObject pitcher;
+    public Material greenShirt;
     int generation = 0;
     int generationProgress = 0;
     float avgFitness = 0;
@@ -86,11 +87,10 @@ public class LearningManager : MonoBehaviour
                 
                 CreateNewGeneration();
 
-                for (int i = 0; i < NUM_AJS; i++) {
+                for (int i = 0; i < NUM_AJS; i++) 
+                {
                     Destroy(AJs[i]);
-
                     AJs[i] = Instantiate(pitcher, new Vector3(i * 2, 0, 0), Quaternion.identity);
-                    
                     LimbManagerJoints pitcherLimbs = AJs[i].GetComponent<LimbManagerJoints>();
                     pitcherLimbs.SetInputs(AJDatas[i].releaseFrame, AJDatas[i].torques);
                     AJs[i].transform.Find("Ball").GetComponent<Ball>().ballID = i;
@@ -114,6 +114,14 @@ public class LearningManager : MonoBehaviour
                 }
                 //update display
                 Display.UpdateText(generation, throwNum);
+            }
+            if (generation > 0)
+            {
+                // Update shirt color for the top % to show they have remained from the previous generation
+                for (int i = NUM_AJS - PARENTS_TO_KEEP; i < NUM_AJS; i++)
+                {
+                    AJs[i].transform.GetChild(8).GetComponent<Renderer>().material = greenShirt;
+                }
             }
         }
     }
