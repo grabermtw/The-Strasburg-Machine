@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Text;
+using System.IO;
 
 public class LearningManager : MonoBehaviour
 {
@@ -28,6 +30,8 @@ public class LearningManager : MonoBehaviour
     private float[][] scores = new float[NUM_AJS][];
     private int num_joints;
 
+    private List<string[]> rowData = new List<String[]>();
+
     // Start is called before the first frame update
     void Start()
     {
@@ -40,6 +44,36 @@ public class LearningManager : MonoBehaviour
         {
             scores[i] = new float[NUM_THROWS];
         }
+
+        // create first row of titles for csv file
+        string[] rowDataTitle = new string[3];
+        rowDataTitle[0] = "Generation #";
+        rowDataTitle[1] = "Max Fitness";
+        rowDataTitle[2] = "Average Fitness";
+        rowData.Add(rowDataTitle);
+    }
+
+    void OnApplicationQuit()
+    {
+        // write data to csv file
+        string[][] output = new string[rowData.Count][];
+
+        for (int i = 0; i < output.Length; i++)
+        {
+            output[i] = rowData[i];
+        }
+
+        int length = output.GetLength(0);
+        string delimiter = ",";
+
+        StringBuilder sb = new StringBuilder();
+
+        for (int index = 0; index < length; index++)
+            sb.AppendLine(string.Join(delimiter, output[index]));
+
+        StreamWriter outStream = System.IO.File.CreateText(Application.dataPath + "/" + "data.csv");
+        outStream.WriteLine(sb);
+        outStream.Close();
     }
 
     // This is called by the Floor script on the Floor GameObject whenever the ball hits the floor
@@ -58,6 +92,8 @@ public class LearningManager : MonoBehaviour
         generationProgress++;
         avgFitness += distance;
         maxFitness = Math.Max(distance, maxFitness);
+
+        string[] rowDataTemp = new string[3];
         
         // Set is done running
         if (generationProgress >= NUM_AJS) {
@@ -79,6 +115,12 @@ public class LearningManager : MonoBehaviour
                     }
                 }
                 Debug.Log("Generation " + generation + ": max fitness was "+maxFitness+", average fitness was "+(avgFitness/(NUM_AJS*NUM_THROWS)));
+                // Adding data to be put in csv file
+                rowDataTemp[0] = generation.ToString();
+                rowDataTemp[1] = maxFitness.ToString();
+                rowDataTemp[2] = (avgFitness / (NUM_AJS * NUM_THROWS)).ToString();
+                rowData.Add(rowDataTemp);
+
                 generationProgress = 0;
                 avgFitness = 0;
                 maxFitness = 0;
