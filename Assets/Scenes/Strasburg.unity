@@ -296,7 +296,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pitcher: {fileID: 4510486828007036380, guid: 146d3b319007d4b48ba2286590aac97a, type: 3}
-  greenShirt: {fileID: 2100000, guid: 82ff7b66a83674b48aabc839ea72a27f, type: 2}
+  greenShirt: {fileID: 2100000, guid: 734cc50bd8e6e6f44a429cc7d977dc69, type: 2}
 --- !u!4 &698554441
 Transform:
   m_ObjectHideFlags: 0
