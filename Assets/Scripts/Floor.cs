@@ -7,16 +7,12 @@ public class Floor : MonoBehaviour
     private LearningManager manager;
 
     private int count;
-    // Start is called before the first frame update
-    void Start()
-    {
-        manager = GameObject.Find("Manager").GetComponent<LearningManager>();
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
 
+    // This is called by UIManager once the learning manager has been instantiated.
+    public void AssignManager()
+    {
+        manager = GameObject.FindWithTag("LearningManager").GetComponent<LearningManager>();
     }
 
     // Handle when the ball hits the ground
