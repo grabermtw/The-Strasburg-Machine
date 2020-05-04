@@ -7,15 +7,15 @@ using System.IO;
 
 public class LearningManager : MonoBehaviour
 {
-    const int NUM_AJS = 10;
+    int NUM_AJS;
     // const int NUM_JOINTS = 10;
     /* We'll get the number of joints from the AJ prefab
     rather than define it here so that we can easily change the number of joints
     */
-    const int NUM_THROWS = 3;
-    const int PARENTS_TO_KEEP = (int)(NUM_AJS * .2);
-    const float CROSSOVER_PROBABILITY = 0.95f;
-    const float MUTATION_PROBABILITY = 0.05f;
+    int NUM_THROWS;
+    int PARENTS_TO_KEEP;
+    float CROSSOVER_PROBABILITY;
+    float MUTATION_PROBABILITY;
 
     public GameObject pitcher;
     public Material greenShirt;
@@ -24,10 +24,10 @@ public class LearningManager : MonoBehaviour
     float avgFitness = 0;
     float maxFitness = 0;
 
-    private GameObject[] AJs = new GameObject[NUM_AJS];
-    private AJData[] AJDatas = new AJData[NUM_AJS];
+    private GameObject[] AJs;
+    private AJData[] AJDatas;
     private int throwNum = 0;
-    private float[][] scores = new float[NUM_AJS][];
+    private float[][] scores;
     private int num_joints;
 
     private List<string[]> rowData = new List<String[]>();
@@ -35,6 +35,14 @@ public class LearningManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        NUM_AJS = PlayerPrefs.GetInt("numAjs");
+        NUM_THROWS = PlayerPrefs.GetInt("numThrows");
+        PARENTS_TO_KEEP = (int)(NUM_AJS * PlayerPrefs.GetFloat("parentsToKeep"));
+        CROSSOVER_PROBABILITY = PlayerPrefs.GetFloat("crossoverProbability");
+        MUTATION_PROBABILITY = PlayerPrefs.GetFloat("mutationProbability");
+        AJs = new GameObject[NUM_AJS];
+        AJDatas = new AJData[NUM_AJS];
+        scores = new float[NUM_AJS][];
         // Get the number of joints this pitcher has
         num_joints = pitcher.GetComponent<LimbManagerJoints>().GetNumberOfJoints();
 
