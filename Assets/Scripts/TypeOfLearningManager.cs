@@ -27,4 +27,9 @@ public class TypeOfLearningManager : MonoBehaviour
         // Give the Floor its learning manager
         GameObject.FindWithTag("Floor").GetComponent<Floor>().AssignManager();
     }
+
+    public void OnQuitApplicationButtonClicked()
+    {
+        Application.Quit();
+    }
 }
