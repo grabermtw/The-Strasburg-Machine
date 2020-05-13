@@ -12,6 +12,7 @@ public class Ball : MonoBehaviour
         manager = GameObject.FindWithTag("LearningManager").GetComponent<LearningManager>();
     }
 
+/*
     void Update()
     {
         if(transform.position.y < 0)
@@ -19,4 +20,5 @@ public class Ball : MonoBehaviour
             manager.BallHitGround(ballID, transform.position);
         }
     }
+    */
 }
